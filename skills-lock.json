@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "kev-deploy": {
+      "source": "jaredpalmer/kev",
+      "sourceType": "github",
+      "skillPath": "skills/kev-deploy/SKILL.md",
+      "computedHash": "5bcda9d2e55872dd9c90174e516a28f9367c1eaa4837aaac59b210a877c0549d"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+KEV-EVOLVE PRODUCT REQUIREMENT DOCUMENT (PRD)
+
+1. PROJECT OVERVIEW
+Project Name: Kev-Evolve
+Objective: Build a high-performance, real-time autonomous research and evolutionary code-optimization harness inspired by RSI-top, OpenEvolve, and ShinkaEvolve.
+Core Problem: Standard coding agents fail during complex research or optimization tasks because they get trapped in local maxima and flood their context windows with failed execution traces, leading to reasoning degradation.
+Solution: Kev-Evolve combines Jared Palmer's sub-20ms Kev decision engine with a Directed Acyclic Graph (DAG) trajectory memory store. Kev acts as a high-speed router to evaluate candidate mutation strategies in milliseconds, pruning bad search paths before executing expensive sandboxes and triggering automated "Paradigm Shift" mutations when performance plateaus.
+
+2. KEY SYSTEM ARCHITECTURE & COMPONENTS
+
+* DAG Trajectory Memory Store (src/harness/graphStore.ts): Replaces flat linear context windows with a Directed Acyclic Graph tracking code iterations, parent-child lineages, execution metrics, and compressed failure summaries.
+* Multi-Fidelity Sandbox Evaluator (src/harness/evaluator.ts): Tiered sandbox runner for fast AST validation (Tier 1), mini-workload execution profiling (Tier 2), and full benchmark hardware verification (Tier 3).
+* Kev SystemOne Routing Client (src/harness/kevClient.ts): High-speed API client that queries Kev models in ~10-20ms to evaluate AST diffs and score proposed trajectory paths.
+* Plateau Detector & Paradigm Shift Agent (src/agents/mutator.ts & src/agents/reflector.ts): Monitors metric progress across generations. When progress stalls for N cycles, it purges local branch history and forces a major structural refactor (e.g., warp-level memory tiling or memory layout shifts).
+* Live Terminal Dashboard (src/ui/dashboard.ts): Rich CLI interface built with Ink or Blessed displaying live search trees, real-time TFLOPS/latency line graphs, decision latency, and cost savings telemetry.
+
+3. KEV SYSTEMONE API CONFIGURATION
+
+* Endpoint URL: https://yohann-60613--kev-demo.modal.run/v1/systemone
+* Required Headers:
+  * "Authorization": "Bearer <KEV_API_KEY>"
+  * "Content-Type": "application/json"
+* Request Body Payload:
+  * "model": "kev-9b" or "kev-27b"
+* Usage Guidelines & Rate Limit Management:
+  * Environment Variable: Store key in .env as KEV_API_KEY=<key>.
+  * Daily Limits: Exactly 1000 calls for kev-9b and 200 calls for kev-27b.
+  * Routing Rules: Use kev-9b for high-frequency search space pruning, trajectory evaluation, and AST filtering. Use kev-27b strictly when the Plateau Detector fires a "Paradigm Shift" event for deep recovery reasoning.
+  * Quota Tracking: Implement local counter state in kevClient.ts to log daily usage and prevent exceeding quota limits.
+
+4. TARGET BENCHMARK FOR DEMO
+
+* Primary Benchmark: Triton / CUDA Kernel Optimization (benchmarks/triton_flash_attention)
+* Target Baseline: PyTorch reference execution (~40-42 TFLOPS)
+* Target Optimized Metric: 140+ TFLOPS with 0.000% error margin against reference output
+* Live Demo Duration: 60 seconds with real-time ASCII/GUI line graph jumps upon Paradigm Shift trigger
+
+5. AGENT HANDOFF PROTOCOL (HANDOFF.md)
+Claude Code (Terminal 1) and Devin (Terminal 2) operate in the same workspace directory and coordinate using HANDOFF.md in the project root.
+
+Role Division:
+* Claude Code (Terminal 1): Chief System Architect, API Schemas, Code Review, Refactoring, & Terminal UI.
+* Devin (Terminal 2): Feature Implementation, Tiered Sandbox Execution, Test Automation, & Build Fixes.
+
+Handoff Execution Flow:
+1. Every task completion or state transition requires updating HANDOFF.md.
+2. Always list modified files, completed checklist items, and explicit actionable next instructions for the other agent.
+3. Keep context crisp by relying on HANDOFF.md summaries rather than appending raw logs.
+
+6. DEFINITION OF DONE
+
+* Running `bun run evolve --benchmark triton_flash_attention` executes the full evolutionary loop.
+* Kev SystemOne client handles routing decision passes in <20ms using kev-9b and triggers kev-27b on stagnation recovery.
+* Terminal dashboard displays live search DAG trees, TFLOPS performance graphs, decision latency, and compute cost savings telemetry.
+* All code passes `bun test` with zero runtime or typing errors.

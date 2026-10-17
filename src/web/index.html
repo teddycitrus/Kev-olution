@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kev-Evolve Dashboard</title>
+<style>
+  :root {
+    --bg: #0a0b10; --side: #0d0f15; --card: #12141c; --card2: #161924; --line: #1f2330; --line2: #2a2f3e;
+    --text: #e8eaf0; --muted: #8b90a1; --faint: #5c6273;
+    --blue: #4f8cff; --green: #22c55e; --purple: #a78bfa; --orange: #f59e0b; --red: #ef4444; --gold: #fbbf24; --gray: #475066;
+    --sans: Inter, "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    --mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--sans); display: flex; -webkit-font-smoothing: antialiased; }
+  svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+  /* Sidebar */
+  aside { width: 236px; flex: none; background: var(--side); border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 18px 14px; position: sticky; top: 0; height: 100vh; }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 4px 6px 18px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+  .logo { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #4f8cff, #7c5cff); display: grid; place-items: center; font-weight: 800; color: #fff; }
+  .brand b { display: block; font-size: 14px; }
+  .brand span { color: var(--muted); font-size: 12px; }
+  .nav a { display: flex; align-items: center; gap: 11px; padding: 9px 10px; border-radius: 9px; color: var(--muted); text-decoration: none; font-weight: 500; margin-bottom: 2px; }
+  .nav a:hover { background: var(--card); color: var(--text); }
+  .nav a.active { background: #16203a; color: #cfe0ff; box-shadow: inset 2px 0 0 var(--blue); }
+  .nav .count { margin-left: auto; background: var(--blue); color: #fff; font: 600 11px var(--sans); border-radius: 999px; padding: 1px 7px; }
+  .section { color: var(--faint); font: 600 11px var(--sans); letter-spacing: .8px; text-transform: uppercase; margin: 18px 10px 8px; }
+  .runbtn { width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 9px; border: 1px solid var(--line); background: var(--card); color: var(--text); font: 500 13px var(--sans); cursor: pointer; margin-bottom: 6px; text-align: left; }
+  .runbtn:hover:not(:disabled) { border-color: var(--line2); background: var(--card2); }
+  .runbtn.primary { background: #12301f; border-color: #1d5a37; color: #c6f6d5; }
+  .runbtn:disabled { opacity: .4; cursor: default; }
+  .runbtn small { margin-left: auto; color: var(--faint); font-size: 11px; }
+  .side-foot { margin-top: auto; border-top: 1px solid var(--line); padding-top: 14px; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; font: 600 11px var(--sans); padding: 4px 9px; border-radius: 999px; }
+  .pill.sim { background: #2a2108; color: var(--gold); border: 1px solid #4a3a0e; }
+  .pill.gpu { background: #0d2a18; color: var(--green); border: 1px solid #1d5a37; }
+  .side-foot p { color: var(--faint); font-size: 11px; margin: 8px 2px 0; }
+
+  /* Main */
+  main { flex: 1; min-width: 0; padding: 26px 30px 40px; }
+  .top { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 22px; }
+  .top h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -.3px; }
+  .top .sub { color: var(--muted); margin-top: 2px; }
+  .top .right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  .iconbtn { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--muted); display: grid; place-items: center; cursor: pointer; position: relative; }
+  .iconbtn:hover { color: var(--text); border-color: var(--line2); }
+  .iconbtn .badge-dot { position: absolute; top: 7px; right: 7px; width: 8px; height: 8px; border-radius: 50%; background: var(--red); display: none; }
+  .chip { font: 600 12px var(--sans); color: var(--muted); background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; }
+  .chip b { color: var(--text); font-family: var(--mono); }
+
+  .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; min-width: 0; }
+  .card h3 { margin: 0 0 14px; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .card h3 .link { margin-left: auto; color: var(--blue); font-size: 13px; font-weight: 500; cursor: pointer; }
+  .card h3 .legend { margin-left: auto; display: flex; gap: 12px; color: var(--muted); font: 500 11px var(--sans); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; vertical-align: 0; }
+  .span3 { grid-column: span 3; } .span4 { grid-column: span 4; } .span8 { grid-column: span 8; } .span12 { grid-column: span 12; }
+
+  .kpi { cursor: default; transition: border-color .2s, transform .2s; }
+  .kpi.clickable { cursor: pointer; }
+  .kpi.clickable:hover { border-color: var(--line2); transform: translateY(-1px); }
+  .kpi .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .tile { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; }
+  .tile.blue { background: #142240; color: var(--blue); } .tile.green { background: #0f2a1b; color: var(--green); }
+  .tile.purple { background: #221a3d; color: var(--purple); } .tile.orange { background: #2d2009; color: var(--orange); }
+  .tile.red { background: #2e1214; color: var(--red); } .tile.gold { background: #2d2508; color: var(--gold); }
+  .kpi .trend { color: var(--green); }
+  .kpi .label { color: var(--muted); font-size: 13px; font-weight: 500; }
+  .kpi .value { font-size: 28px; font-weight: 700; letter-spacing: -.5px; margin: 2px 0 4px; font-variant-numeric: tabular-nums; }
+  .kpi .value small { font-size: 14px; color: var(--muted); font-weight: 500; margin-left: 4px; }
+  .kpi .delta { color: var(--green); font-size: 12.5px; font-weight: 500; }
+  .kpi .delta.muted { color: var(--muted); }
+
+  .stat { margin-bottom: 16px; }
+  .stat .row { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 7px; }
+  .stat .row b { color: var(--text); font-family: var(--mono); font-weight: 600; }
+  .bar { height: 7px; background: #1c2030; border-radius: 99px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; border-radius: 99px; width: 0; transition: width .5s ease; }
+
+  .list .item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #191c27; }
+  .list .item:last-child { border-bottom: 0; }
+  .list .item .txt { min-width: 0; flex: 1; }
+  .list .item .t1 { font-weight: 600; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list .item .t2 { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list .item .when { color: var(--faint); font-size: 12px; white-space: nowrap; }
+  .list .item .val { font: 600 13px var(--mono); }
+  .list .item .tile { width: 34px; height: 34px; border-radius: 9px; }
+  .list .item .tile svg { width: 16px; height: 16px; }
+  .empty { color: var(--faint); font-size: 13px; padding: 26px 0; text-align: center; }
+
+  svg.chart { width: 100%; height: 300px; display: block; }
+  svg.dag { width: 100%; height: 330px; display: block; }
+
+  /* Alerts */
+  .alert { display: none; align-items: center; gap: 14px; border-radius: var(--radius); padding: 14px 18px; margin-bottom: 18px; }
+  .alert.shift { background: linear-gradient(90deg, #3a0f14, #3d2405); border: 1px solid #7a2a1a; animation: glow 1s ease-in-out infinite alternate; }
+  .alert.done { background: #0d2417; border: 1px solid #1d5a37; }
+  .alert .t1 { font-weight: 700; font-size: 15px; }
+  .alert .t2 { color: #c9cdd8; font-size: 12.5px; margin-top: 2px; }
+  .alert .probs { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+  .alert .probs span { font: 600 11.5px var(--mono); padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,.07); color: #d8dbe4; }
+  .alert .probs span.win { background: rgba(251,191,36,.22); color: var(--gold); }
+  .alert button { margin-left: auto; }
+  @keyframes glow { from { box-shadow: 0 0 0 rgba(239,68,68,0); } to { box-shadow: 0 0 28px rgba(239,68,68,.25); } }
+
+  .btn { font: 600 13px var(--sans); border-radius: 9px; padding: 8px 14px; border: 1px solid var(--line2); background: var(--card2); color: var(--text); cursor: pointer; }
+  .btn.green { background: #16a34a; border-color: #16a34a; color: #fff; }
+
+  /* Modal */
+  .overlay { position: fixed; inset: 0; background: rgba(4,5,9,.72); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 50; padding: 24px; }
+  .overlay.open { display: flex; animation: fade .18s ease-out; }
+  .modal { width: min(760px, 100%); max-height: 90vh; overflow: auto; background: var(--card); border: 1px solid var(--line2); border-radius: 18px; padding: 24px 26px; box-shadow: 0 30px 80px rgba(0,0,0,.5); animation: rise .22s ease-out; }
+  @keyframes fade { from { opacity: 0; } } @keyframes rise { from { transform: translateY(10px) scale(.98); opacity: 0; } }
+  .modal .mh { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+  .modal h2 { margin: 0; font-size: 20px; }
+  .modal .close { margin-left: auto; }
+  .modal .lead { color: var(--muted); margin: 0 0 18px; font-size: 13px; }
+  .hero { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+  .hero .box { background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .hero .box .k { color: var(--muted); font-size: 12px; }
+  .hero .box .v { font-size: 26px; font-weight: 700; letter-spacing: -.4px; font-variant-numeric: tabular-nums; }
+  .hero .box.win { background: #0d2417; border-color: #1d5a37; }
+  .hero .box.win .v { color: var(--green); }
+  table.cmp { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 18px; }
+  table.cmp th { text-align: right; color: var(--muted); font-weight: 500; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  table.cmp th:first-child, table.cmp td:first-child { text-align: left; }
+  table.cmp td { text-align: right; padding: 9px 10px; border-bottom: 1px solid #191c27; font-variant-numeric: tabular-nums; }
+  table.cmp td.good { color: var(--green); font-weight: 600; }
+  table.cmp tr.total td { font-weight: 700; border-bottom: 0; }
+  .assume { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+  .assume label { display: block; color: var(--muted); font-size: 11.5px; margin-bottom: 4px; }
+  .assume input { width: 100%; background: var(--bg); border: 1px solid var(--line2); color: var(--text); border-radius: 8px; padding: 7px 9px; font: 600 13px var(--mono); }
+  .foot { color: var(--faint); font-size: 11.5px; line-height: 1.5; }
+  @media (max-width: 1250px) { .span3 { grid-column: span 6; } .span8, .span4 { grid-column: span 12; } aside { display: none; } }
+</style>
+</head>
+<body>
+<!-- Inline icon set (Lucide-style strokes), referenced with <use>. -->
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-6"/></symbol>
+  <symbol id="i-branch" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="9" r="2"/><path d="M6 7v10M18 11c0 4-6 3-12 6"/></symbol>
+  <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
+  <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="m6 4 14 8-14 8z"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M2 9a15 15 0 0 1 20 0M12 20h.01"/></symbol>
+  <symbol id="i-off" viewBox="0 0 24 24"><path d="M2 2l20 20M8.5 16a5 5 0 0 1 7 0M5 12.5a10 10 0 0 1 4.3-2.6M19 12.5a10 10 0 0 0-2.4-1.8"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+  <symbol id="i-fail" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h8a3 3 0 0 0 0-6H8a3 3 0 0 1 0-6h8"/></symbol>
+</svg>
+
+<aside>
+  <div class="brand"><div class="logo">K</div><div><b>Kev-Evolve</b><span>Research harness</span></div></div>
+  <nav class="nav">
+    <a href="#top" class="active"><svg class="i"><use href="#i-home"/></svg>Dashboard</a>
+    <a href="#throughput"><svg class="i"><use href="#i-chart"/></svg>Throughput</a>
+    <a href="#search"><svg class="i"><use href="#i-branch"/></svg>Search DAG<span class="count" id="navNodes">0</span></a>
+    <a href="#kernels"><svg class="i"><use href="#i-star"/></svg>Top kernels</a>
+    <a href="#activity"><svg class="i"><use href="#i-list"/></svg>Activity<span class="count" id="navEvents">0</span></a>
+  </nav>
+  <div class="section">Run</div>
+  <button class="runbtn primary" data-mode="demo" title="Kev answers replayed from the recorded cache (deterministic)"><svg class="i"><use href="#i-play"/></svg>Run demo<small>cached Kev</small></button>
+  <button class="runbtn" data-mode="live" title="Every Kev decision over the network"><svg class="i"><use href="#i-wifi"/></svg>Run live<small>Kev API</small></button>
+  <button class="runbtn" data-mode="offline" title="No Kev: heuristic routing and fixed shift order"><svg class="i"><use href="#i-off"/></svg>Run offline<small>no Kev</small></button>
+  <div class="side-foot">
+    <span class="pill sim" id="backendPill">SIMULATED H100</span>
+    <p>Throughput comes from a simulated H100 performance model. Kev decisions are real (cached or live).</p>
+  </div>
+</aside>
+
+<main id="top">
+  <div class="top">
+    <div>
+      <h1>Dashboard</h1>
+      <div class="sub" id="task">Triton flash-attention forward kernel optimization. Press Run demo to start.</div>
+    </div>
+    <div class="right">
+      <span class="chip">Mode <b id="mode">idle</b></span>
+      <span class="chip">Elapsed <b id="clock">0.0s</b></span>
+      <button class="iconbtn" id="openSaved" title="Time saved by Kev"><svg class="i"><use href="#i-clock"/></svg><span class="badge-dot" id="savedDot"></span></button>
+    </div>
+  </div>
+
+  <div class="alert shift" id="shiftAlert">
+    <div class="tile red"><svg class="i"><use href="#i-alert"/></svg></div>
+    <div><div class="t1" id="shiftT1"></div><div class="t2" id="shiftT2"></div></div>
+    <div class="probs" id="shiftProbs"></div>
+  </div>
+  <div class="alert done" id="doneAlert">
+    <div class="tile green"><svg class="i"><use href="#i-check"/></svg></div>
+    <div><div class="t1" id="doneT1"></div><div class="t2" id="doneT2"></div></div>
+    <button class="btn green" id="doneSaved">See time saved</button>
+  </div>
+
+  <div class="grid">
+    <div class="card kpi span3">
+      <div class="head"><div class="tile blue"><svg class="i"><use href="#i-zap"/></svg></div><svg class="i trend"><use href="#i-trend"/></svg></div>
+      <div class="label">Best throughput</div>
+      <div class="value" id="kBest">-<small>TFLOPS</small></div>
+      <div class="delta muted" id="kBestD">waiting for a run</div>
+    </div>
+    <div class="card kpi span3">
+      <div class="head"><div class="tile green"><svg class="i"><use href="#i-trend"/></svg></div><svg class="i trend"><use href="#i-trend"/></svg></div>
+      <div class="label">Speedup vs baseline</div>
+      <div class="value" id="kSpeed">-</div>
+      <div class="delta muted" id="kSpeedD">target 140 TFLOPS</div>
+    </div>
+    <div class="card kpi span3">
+      <div class="head"><div class="tile purple"><svg class="i"><use href="#i-scissors"/></svg></div><svg class="i trend"><use href="#i-trend"/></svg></div>
+      <div class="label">Kev routing decisions</div>
+      <div class="value" id="kDec">0</div>
+      <div class="delta muted" id="kDecD">candidates pruned before the sandbox</div>
+    </div>
+    <div class="card kpi span3 clickable" id="kSavedCard" title="Open the time-saved breakdown">
+      <div class="head"><div class="tile orange"><svg class="i"><use href="#i-clock"/></svg></div><svg class="i trend"><use href="#i-trend"/></svg></div>
+      <div class="label">Est. time saved by Kev</div>
+      <div class="value" id="kSaved">-</div>
+      <div class="delta muted" id="kSavedD">vs the same search without Kev</div>
+    </div>
+
+    <div class="card span8" id="throughput">
+      <h3>Throughput by cycle
+        <span class="legend"><span><i class="dot" style="background:var(--blue)"></i>best so far</span><span><i class="dot" style="background:#22c55e88"></i>candidate</span><span><i class="dot" style="background:var(--red)"></i>rejected</span><span><i class="dot" style="background:var(--gold)"></i>paradigm shift</span></span>
+      </h3>
+      <svg class="chart" id="chart" viewBox="0 0 760 300" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="card span4">
+      <h3>Quick stats</h3>
+      <div class="stat"><div class="row"><span>Progress to target</span><b id="qTarget">0%</b></div><div class="bar"><i id="bTarget" style="background:var(--blue)"></i></div></div>
+      <div class="stat"><div class="row"><span>Candidates pruned by Kev</span><b id="qPruned">0%</b></div><div class="bar"><i id="bPruned" style="background:var(--purple)"></i></div></div>
+      <div class="stat"><div class="row"><span>Compiles avoided vs no-Kev</span><b id="qComp">-</b></div><div class="bar"><i id="bComp" style="background:var(--orange)"></i></div></div>
+      <div class="stat"><div class="row"><span>Simulated GPU compute avoided</span><b id="qGpu">0%</b></div><div class="bar"><i id="bGpu" style="background:var(--green)"></i></div></div>
+      <div class="stat" style="margin-bottom:0"><div class="row"><span>Paradigm shifts (kev-27b)</span><b id="qShifts">0</b></div><div class="bar"><i id="bShifts" style="background:var(--gold)"></i></div></div>
+    </div>
+
+    <div class="card span8" id="search">
+      <h3>Search DAG
+        <span class="legend"><span><i class="dot" style="background:var(--green)"></i>viable</span><span><i class="dot" style="background:var(--red)"></i>pruned / failed</span><span><i class="dot" style="background:var(--gold)"></i>shift</span><span><i class="dot" style="background:var(--gray)"></i>purged</span></span>
+      </h3>
+      <svg class="dag" id="dag" viewBox="0 0 760 330"></svg>
+    </div>
+    <div class="card span4" id="kernels">
+      <h3>Top kernels</h3>
+      <div class="list" id="topList"><div class="empty">No evaluated kernels yet</div></div>
+    </div>
+
+    <div class="card span8" id="activity">
+      <h3>Recent activity</h3>
+      <div class="list" id="activityList"><div class="empty">Activity appears here once a run starts</div></div>
+    </div>
+    <div class="card span4">
+      <h3>Kev routing</h3>
+      <div class="list" id="kevList"><div class="empty">No routing decisions yet</div></div>
+    </div>
+  </div>
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <div class="mh">
+      <div class="tile orange"><svg class="i"><use href="#i-clock"/></svg></div>
+      <h2 id="mTitle">Time saved by Kev</h2>
+      <button class="iconbtn close" id="closeSaved" title="Close"><svg class="i"><use href="#i-x"/></svg></button>
+    </div>
+    <p class="lead" id="mLead">Compares this run with the identical search (same seed, task, and evaluator) without Kev routing. Work counts are measured; wall-clock time is an upper-end estimate from the per-step costs below.</p>
+    <div class="hero">
+      <div class="box win"><div class="k">Estimated time saved</div><div class="v" id="mSaved">-</div></div>
+      <div class="box"><div class="k">With Kev</div><div class="v" id="mWith">-</div></div>
+      <div class="box"><div class="k">Without Kev</div><div class="v" id="mWithout">-</div></div>
+    </div>
+    <table class="cmp">
+      <thead><tr><th>Work per run</th><th>With Kev</th><th>Without Kev</th><th>Difference</th></tr></thead>
+      <tbody id="mRows"></tbody>
+    </table>
+    <div class="assume">
+      <div><label>LLM writes a kernel (s)</label><input type="number" min="0" step="1" id="aGen" value="40"></div>
+      <div><label>Compile + check (s)</label><input type="number" min="0" step="1" id="aCompile" value="35"></div>
+      <div><label>Full benchmark (s)</label><input type="number" min="0" step="1" id="aBench" value="20"></div>
+      <div><label>Kev decision (s)</label><input type="number" min="0" step="0.1" id="aKev" value="1.3"></div>
+    </div>
+    <div class="foot">Defaults are upper-end estimates: 40 s per LLM-written kernel, about 30 s Triton compile plus a 5 s correctness run, a 20 s do_bench benchmark, and 1.3 s per Kev call (the slowest round trip measured live). Sequential execution on one GPU is assumed. Work counts come from simulated runs; the final kernel is the same in both runs.</div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+
+let S;
+function reset() {
+  S = { mode: "idle", t: 0, baseline: 0, target: 0, backend: "simulated", routing: "kev", cycle: 0, series: [], points: [], shifts: [],
+        nodes: new Map(), order: [], champion: null, stats: null, summary: null, rtts: [], models: [], decisions: 0, pruned: 0,
+        acts: [], kevActs: [], lastShiftAt: -1e9, work: { compiles: 0, benchmarks: 0, kevCalls: 0 }, noKev: null, problem: null, hardware: "" };
+}
+reset();
+
+const pct = (vals, p) => { if (!vals.length) return undefined; const s = [...vals].sort((a, b) => a - b); return s[Math.min(s.length - 1, Math.max(0, Math.ceil((p / 100) * s.length) - 1))]; };
+const f1 = (x) => (x === undefined || x === null || !isFinite(x) ? "-" : x.toFixed(1));
+const ms = (x) => (x === undefined ? "-" : x < 1 ? `${x.toFixed(2)} ms` : `${x.toFixed(0)} ms`);
+const dur = (s) => (s < 90 ? `${Math.round(s)} s` : s < 5400 ? `${(s / 60).toFixed(0)} min` : `${(s / 3600).toFixed(1)} h`);
+
+function act(kind, title, detail) {
+  S.acts.push({ kind, title, detail, at: Date.now() });
+  if (S.acts.length > 200) S.acts.shift();
+}
+
+function onEvolve(e) {
+  switch (e.type) {
+    case "started": S.baseline = e.baselineScore; S.target = e.targetScore; S.backend = e.backend; S.routing = e.routing; act("info", "Run started", `baseline ${e.baselineScore} TFLOPS, target ${e.targetScore}`); break;
+    case "cycle_started": S.cycle = e.cycle; break;
+    case "kev_decision":
+      if (e.source !== "heuristic") { S.rtts.push(e.latencyMs); S.work.kevCalls += 1; }
+      if (e.modelLatencyMs !== undefined) S.models.push(e.modelLatencyMs);
+      S.decisions += e.kept.length + e.pruned.length; S.pruned += e.pruned.length;
+      S.kevActs.push({ cycle: e.cycle, model: e.model ?? "heuristic", source: e.source, ms: e.latencyMs, kept: e.kept.length, pruned: e.pruned.length, error: e.error });
+      if (S.kevActs.length > 50) S.kevActs.shift();
+      break;
+    case "evaluated":
+      if (e.tier >= 2) S.work.compiles += 1;
+      if (e.tier >= 3) S.work.benchmarks += 1;
+      if (e.score !== undefined) S.points.push({ cycle: e.cycle, score: e.score, ok: e.ok });
+      if (!e.ok) act("fail", `Rejected ${e.id}`, e.summary);
+      break;
+    case "champion":
+      S.champion = { id: e.id, score: e.score, summary: e.summary };
+      if (e.cycle === 0) S.series = [{ cycle: 0, score: e.score }];
+      act("champion", `New best kernel ${e.id}: ${e.score.toFixed(1)} TFLOPS`, e.summary);
+      break;
+    case "plateau": act("plateau", "Plateau detected", `${e.signal.stalledCycles} cycles without >1% gain at ${e.signal.bestScore.toFixed(1)} TFLOPS`); break;
+    case "paradigm_shift": {
+      const d = e.directive;
+      S.shifts.push({ cycle: e.cycle, label: d.strategyLabel, decidedBy: d.decidedBy, probabilities: d.probabilities || {}, strategyId: d.strategyId, purged: d.purgedIds.length, best: S.champion?.score });
+      S.lastShiftAt = performance.now();
+      if (d.decidedBy === "kev-27b") S.work.kevCalls += 1;
+      if (d.kevLatencyMs !== undefined && d.kevSource && d.kevSource !== "heuristic") S.rtts.push(d.kevLatencyMs);
+      act("shift", `Paradigm shift: ${d.strategyLabel}`, `${d.decidedBy === "kev-27b" ? "chosen by kev-27b" : "fallback order"}, purged ${d.purgedIds.length} stalled nodes`);
+      break;
+    }
+    case "converged": act("info", "Search converged", e.reason); break;
+    case "cycle_finished": {
+      S.stats = e.stats;
+      const last = S.series[S.series.length - 1];
+      if (last && last.cycle === e.cycle) last.score = e.bestScore; else S.series.push({ cycle: e.cycle, score: e.bestScore });
+      break;
+    }
+    case "finished":
+      S.summary = e.summary; S.stats = e.summary.stats;
+      act("done", "Run finished", `${e.summary.bestScore.toFixed(1)} TFLOPS, ${e.summary.speedup.toFixed(2)}x baseline (${e.summary.stopReason})`);
+      if (S.mode !== "offline") setTimeout(openSaved, 1600);
+      break;
+  }
+}
+
+function onGraph(e) {
+  const n = S.nodes.get(e.id);
+  switch (e.type) {
+    case "node_added": S.nodes.set(e.id, { id: e.id, parent: e.parentIds[0], gen: e.generation, kind: e.kind, strategy: e.strategy, config: e.config, status: "pending" }); S.order.push(e.id); break;
+    case "node_scored": if (n) n.score = e.verdict.score; break;
+    case "node_pruned": if (n && n.status !== "purged") { n.status = "pruned"; n.reason = e.reason; } break;
+    case "node_failed": if (n && n.status !== "purged") { n.status = "failed"; n.reason = e.failure.summary; } break;
+    case "node_evaluated": if (n) { n.score = e.metrics.score; n.err = e.metrics.maxAbsError; if (n.status !== "purged") n.status = "evaluated"; } break;
+    case "branch_purged": for (const id of e.purgedIds) { const m = S.nodes.get(id); if (m) m.status = "purged"; } break;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Time saved (measured work x upper-end per-step costs)
+// ---------------------------------------------------------------------------
+
+function costs() {
+  const v = (id) => Math.max(0, Number($(id).value) || 0);
+  return { gen: v("aGen"), compile: v("aCompile"), bench: v("aBench"), kev: v("aKev") };
+}
+function currentWork() {
+  if (!S.summary && !S.stats) return null;
+  const st = S.stats;
+  return { cycles: S.summary ? S.summary.cycles : S.cycle, candidates: st.candidates, compiles: S.work.compiles, benchmarks: S.work.benchmarks, kevCalls: S.work.kevCalls, gpuSeconds: st.gpuSecondsSpent };
+}
+const wallSeconds = (w, c) => w.candidates * c.gen + w.compiles * c.compile + w.benchmarks * c.bench + w.kevCalls * c.kev;
+
+function savedEstimate() {
+  const w = currentWork();
+  if (!w || !S.noKev || S.mode === "offline" || !S.summary) return null;
+  const c = costs();
+  const withKev = wallSeconds(w, c), without = wallSeconds(S.noKev, c);
+  return { w, b: S.noKev, withKev, without, saved: without - withKev, share: without > 0 ? (without - withKev) / without : 0 };
+}
+
+function renderModal() {
+  const est = savedEstimate();
+  const rows = $("mRows");
+  if (!est) {
+    $("mSaved").textContent = "-"; $("mWith").textContent = "-"; $("mWithout").textContent = "-";
+    rows.innerHTML = `<tr><td colspan="4" class="empty">${S.mode === "offline" ? "This run used no Kev; it is the baseline. Run the demo or live mode to compare." : "Available when a Kev run finishes."}</td></tr>`;
+    return;
+  }
+  const c = costs();
+  $("mSaved").textContent = `${dur(est.saved)} (${(est.share * 100).toFixed(0)}%)`;
+  $("mWith").textContent = dur(est.withKev);
+  $("mWithout").textContent = dur(est.without);
+  const line = (label, a, b, fmt = (x) => x, lowerIsBetter = true) => {
+    const d = b - a;
+    const good = lowerIsBetter ? d > 0 : d < 0;
+    return `<tr><td>${label}</td><td>${fmt(a)}</td><td>${fmt(b)}</td><td class="${good ? "good" : ""}">${d === 0 ? "same" : (d > 0 ? "-" : "+") + fmt(Math.abs(d))}</td></tr>`;
+  };
+  rows.innerHTML =
+    line("Search cycles", est.w.cycles, est.b.cycles) +
+    line("Candidate kernels written", est.w.candidates, est.b.candidates) +
+    line("Compiles + correctness checks", est.w.compiles, est.b.compiles) +
+    line("Full benchmarks", est.w.benchmarks, est.b.benchmarks) +
+    `<tr><td>Kev calls</td><td>${est.w.kevCalls}</td><td>0</td><td>+${est.w.kevCalls}</td></tr>` +
+    line("Simulated GPU time", est.w.gpuSeconds, est.b.gpuSeconds, (x) => `${x.toFixed(0)} s`) +
+    `<tr class="total"><td>Estimated wall-clock</td><td>${dur(est.withKev)}</td><td>${dur(est.without)}</td><td class="good">-${dur(est.saved)}</td></tr>`;
+  $("mLead").textContent = `This run vs the identical search without Kev (same seed, task, and evaluator; both reach ${f1(S.summary.bestScore)} TFLOPS). Work counts are measured; wall-clock time is an upper-end estimate from the per-step costs below.`;
+}
+
+function openSaved() { renderModal(); $("overlay").classList.add("open"); $("savedDot").style.display = "none"; }
+function closeSaved() { $("overlay").classList.remove("open"); }
+$("openSaved").onclick = openSaved; $("kSavedCard").onclick = openSaved; $("doneSaved").onclick = openSaved; $("closeSaved").onclick = closeSaved;
+$("overlay").addEventListener("click", (e) => { if (e.target.id === "overlay") closeSaved(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSaved(); });
+for (const id of ["aGen", "aCompile", "aBench", "aKev"]) $(id).addEventListener("input", () => { renderModal(); renderKpis(); });
+
+// ---------------------------------------------------------------------------
+// Rendering
+// ---------------------------------------------------------------------------
+
+function el(tag, attrs, parent, text) {
+  const node = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+  if (text !== undefined) node.textContent = text;
+  if (parent) parent.appendChild(node);
+  return node;
+}
+
+function renderChart() {
+  const svg = $("chart"); svg.replaceChildren();
+  const W = 760, H = 300, L = 40, R = 14, T = 14, B = 26;
+  if (!S.series.length) { el("text", { x: W / 2, y: H / 2, fill: "#5c6273", "text-anchor": "middle", "font-size": 13 }, svg, "Waiting for a run"); return; }
+  const maxCycle = Math.max(10, S.series[S.series.length - 1].cycle + 1);
+  const maxY = Math.max(S.target * 1.2, ...S.series.map((p) => p.score), ...S.points.map((p) => p.score)) * 1.05;
+  const x = (c) => L + (c / maxCycle) * (W - L - R);
+  const y = (v) => H - B - (v / maxY) * (H - T - B);
+  const defs = el("defs", {}, svg);
+  const g = el("linearGradient", { id: "area", x1: 0, x2: 0, y1: 0, y2: 1 }, defs);
+  el("stop", { offset: "0%", "stop-color": "#4f8cff", "stop-opacity": 0.35 }, g);
+  el("stop", { offset: "100%", "stop-color": "#4f8cff", "stop-opacity": 0 }, g);
+  for (let v = 0; v <= maxY; v += 40) {
+    el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: "#1a1e2a" }, svg);
+    el("text", { x: L - 8, y: y(v) + 4, fill: "#5c6273", "text-anchor": "end", "font-size": 10.5 }, svg, v.toFixed(0));
+  }
+  for (let c = 0; c <= maxCycle; c += Math.max(1, Math.ceil(maxCycle / 10))) el("text", { x: x(c), y: H - 8, fill: "#5c6273", "text-anchor": "middle", "font-size": 10.5 }, svg, c);
+  const ref = (v, label, color, dash) => {
+    el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: color, "stroke-dasharray": dash, "stroke-width": 1.2 }, svg);
+    el("text", { x: W - R - 2, y: y(v) - 5, fill: color, "text-anchor": "end", "font-size": 10.5, "font-weight": 600 }, svg, label);
+  };
+  ref(S.target, `target ${S.target.toFixed(0)}`, "#fbbf24", "5 5");
+  ref(S.baseline, `baseline ${S.baseline.toFixed(1)}`, "#5c6273", "2 4");
+  S.shifts.forEach((s, i) => {
+    el("line", { x1: x(s.cycle), x2: x(s.cycle), y1: T, y2: H - B, stroke: "#fbbf24", "stroke-width": 1, "stroke-dasharray": "3 3", opacity: 0.6 }, svg);
+    const tx = x(s.cycle) + 5, ty = T + 10 + (i % 3) * 15;
+    el("text", { x: tx, y: ty, fill: "#fbbf24", "font-size": 10.5, "font-weight": 600 }, svg, s.label);
+  });
+  S.points.forEach((p, i) => el("circle", { cx: x(p.cycle) + ((i % 5) - 2) * 2, cy: y(p.score), r: 2.6, fill: p.ok ? "#22c55e66" : "#ef444488" }, svg));
+  let d = "";
+  S.series.forEach((p, i) => { d += i === 0 ? `M${x(p.cycle)},${y(p.score)}` : `H${x(p.cycle)}V${y(p.score)}`; });
+  const last = S.series[S.series.length - 1];
+  el("path", { d: `${d}H${x(last.cycle)}V${H - B}H${x(S.series[0].cycle)}Z`, fill: "url(#area)" }, svg);
+  el("path", { d, fill: "none", stroke: "#4f8cff", "stroke-width": 2.6, "stroke-linejoin": "round" }, svg);
+  el("circle", { cx: x(last.cycle), cy: y(last.score), r: 5, fill: "#4f8cff", stroke: "#0a0b10", "stroke-width": 2 }, svg);
+  el("text", { x: x(last.cycle) + 9, y: y(last.score) + 4, fill: "#e8eaf0", "font-size": 12, "font-weight": 700 }, svg, last.score.toFixed(1));
+}
+
+const NODE_COLOR = { evaluated: "#22c55e", pruned: "#ef4444", failed: "#ef4444", purged: "#475066", pending: "#4f8cff" };
+
+function renderDag() {
+  const svg = $("dag"); svg.replaceChildren();
+  if (!S.order.length) { el("text", { x: 380, y: 165, fill: "#5c6273", "text-anchor": "middle", "font-size": 13 }, svg, "No nodes yet"); return; }
+  const byGen = new Map();
+  for (const id of S.order) { const n = S.nodes.get(id); if (!byGen.has(n.gen)) byGen.set(n.gen, []); byGen.get(n.gen).push(n); }
+  const gens = Math.max(...byGen.keys()) + 1;
+  const maxRows = Math.max(...[...byGen.values()].map((v) => v.length));
+  const W = 760, H = 330, P = 16;
+  const x = (g) => P + (gens <= 1 ? 0 : (g / (gens - 1)) * (W - 2 * P));
+  const pos = new Map();
+  for (const [g, list] of byGen) list.forEach((n, i) => pos.set(n.id, { x: x(g), y: P + ((i + 0.5) / Math.max(maxRows, 1)) * (H - 2 * P) }));
+  const lineage = new Set();
+  for (let id = S.champion?.id; id; id = S.nodes.get(id)?.parent) lineage.add(id);
+  const edges = el("g", {}, svg);
+  for (const id of S.order) {
+    const n = S.nodes.get(id); if (!n.parent || !pos.has(n.parent)) continue;
+    const a = pos.get(n.parent), b = pos.get(id);
+    const hot = lineage.has(id) && lineage.has(n.parent);
+    el("path", { d: `M${a.x},${a.y} C${(a.x + b.x) / 2},${a.y} ${(a.x + b.x) / 2},${b.y} ${b.x},${b.y}`, fill: "none",
+      stroke: hot ? "#4f8cff" : n.status === "purged" ? "#1c2130" : "#262c3c", "stroke-width": hot ? 2.4 : 1 }, edges);
+  }
+  const r = Math.max(2.8, Math.min(6.5, (H - 2 * P) / Math.max(maxRows, 1) / 2.6));
+  for (const id of S.order) {
+    const n = S.nodes.get(id), p = pos.get(id);
+    const shift = n.kind === "paradigm_shift";
+    const champ = id === S.champion?.id;
+    const fill = shift && n.status === "evaluated" ? "#fbbf24" : NODE_COLOR[n.status];
+    const c = el("circle", { cx: p.x, cy: p.y, r: champ ? r * 1.6 : shift ? r * 1.3 : r, fill, opacity: n.status === "purged" ? 0.5 : 1,
+      stroke: champ ? "#ffffff" : "none", "stroke-width": 2 }, svg);
+    el("title", {}, c, `${n.id} [${n.status}] ${n.strategy}\n${n.config}${n.score !== undefined ? `\n${n.score.toFixed(1)} TFLOPS` : ""}${n.score !== undefined ? `\nkev-9b score ${n.score.toFixed(2)}` : ""}${n.reason ? `\n${n.reason}` : ""}`);
+  }
+}
+
+const ICON = { champion: ["green", "i-star"], fail: ["red", "i-fail"], shift: ["gold", "i-zap"], plateau: ["orange", "i-pause"], info: ["blue", "i-route"], done: ["green", "i-check"] };
+const ago = (at) => { const s = Math.max(0, (Date.now() - at) / 1000); return s < 60 ? `${s.toFixed(0)}s ago` : `${(s / 60).toFixed(0)} min ago`; };
+const tileHtml = (color, icon) => `<div class="tile ${color}"><svg class="i"><use href="#${icon}"/></svg></div>`;
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+function renderActivity() {
+  const list = $("activityList");
+  if (!S.acts.length) return;
+  list.innerHTML = S.acts.slice(-7).reverse().map((a) => {
+    const [color, icon] = ICON[a.kind] ?? ICON.info;
+    return `<div class="item">${tileHtml(color, icon)}<div class="txt"><div class="t1">${esc(a.title)}</div><div class="t2">${esc(a.detail)}</div></div><div class="when">${ago(a.at)}</div></div>`;
+  }).join("");
+  $("navEvents").textContent = S.acts.length;
+}
+
+function renderTop() {
+  const top = S.order.map((id) => S.nodes.get(id)).filter((n) => n.score !== undefined && n.status !== "failed").sort((a, b) => b.score - a.score).slice(0, 6);
+  if (!top.length) return;
+  $("topList").innerHTML = top.map((n) => {
+    const champ = n.id === S.champion?.id;
+    const [color, icon] = champ ? ["green", "i-star"] : n.kind === "paradigm_shift" ? ["gold", "i-zap"] : ["blue", "i-cpu"];
+    return `<div class="item">${tileHtml(color, icon)}<div class="txt"><div class="t1">${esc(n.config)}</div><div class="t2">${esc(n.id)}${champ ? " · best" : ""}${n.status === "purged" ? " · purged" : ""}</div></div><div class="val">${n.score.toFixed(1)}</div></div>`;
+  }).join("");
+}
+
+function renderKev() {
+  if (!S.kevActs.length && !S.shifts.length) return;
+  const items = [];
+  const net = S.rtts.length ? `${ms(pct(S.rtts, 50))} p50` : "-";
+  items.push(`<div class="item">${tileHtml("purple", "i-cpu")}<div class="txt"><div class="t1">Active model: ${activeModel()}</div><div class="t2">routing ${net} · Kev model p50 ${ms(pct(S.models, 50))}</div></div></div>`);
+  for (const s of S.shifts.slice(-3).reverse()) {
+    const probs = Object.entries(s.probabilities).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([k, v]) => `${k} ${(v * 100).toFixed(0)}%`).join(", ");
+    items.push(`<div class="item">${tileHtml("gold", "i-zap")}<div class="txt"><div class="t1">${s.decidedBy === "kev-27b" ? "kev-27b" : "fallback"}: ${esc(s.label)}</div><div class="t2">cycle ${s.cycle}${probs ? ` · ${probs}` : ""}</div></div></div>`);
+  }
+  for (const k of S.kevActs.slice(-3).reverse()) {
+    items.push(`<div class="item">${tileHtml(k.error ? "red" : "blue", "i-route")}<div class="txt"><div class="t1">${esc(k.model)} via ${k.source}</div><div class="t2">cycle ${k.cycle} · kept ${k.kept}, pruned ${k.pruned}</div></div><div class="when">${ms(k.ms)}</div></div>`);
+  }
+  $("kevList").innerHTML = items.join("");
+}
+
+function activeModel() {
+  const last = S.shifts[S.shifts.length - 1];
+  if (last && performance.now() - S.lastShiftAt < 3500 && !S.summary) return last.decidedBy === "kev-27b" ? "Kev-27B" : "fallback order";
+  return S.mode === "offline" || S.routing !== "kev" ? "none (offline)" : "Kev-9B";
+}
+
+function setBar(id, frac) { $(id).style.width = `${Math.max(0, Math.min(1, frac)) * 100}%`; }
+
+function renderKpis() {
+  const best = S.champion?.score;
+  $("kBest").innerHTML = `${f1(best)}<small>TFLOPS</small>`;
+  $("kBestD").textContent = best && S.baseline ? `+${(best - S.baseline).toFixed(1)} from baseline ${S.baseline.toFixed(1)}` : "waiting for a run";
+  $("kBestD").className = `delta${best ? "" : " muted"}`;
+  $("kSpeed").textContent = best && S.baseline ? `${(best / S.baseline).toFixed(2)}x` : "-";
+  $("kSpeedD").textContent = best && best >= S.target ? `target ${S.target.toFixed(0)} TFLOPS reached` : `target ${S.target ? S.target.toFixed(0) : 140} TFLOPS`;
+  $("kSpeedD").className = `delta${best && best >= S.target ? "" : " muted"}`;
+  $("kDec").textContent = S.decisions;
+  $("kDecD").textContent = S.decisions ? `${S.pruned} pruned before the sandbox` : "candidates pruned before the sandbox";
+  $("kDecD").className = `delta${S.pruned ? "" : " muted"}`;
+  const est = savedEstimate();
+  $("kSaved").textContent = est ? dur(est.saved) : "-";
+  $("kSavedD").textContent = est ? `${(est.share * 100).toFixed(0)}% faster than without Kev (est.)` : S.mode === "offline" ? "offline run (no Kev)" : "vs the same search without Kev";
+  $("kSavedD").className = `delta${est ? "" : " muted"}`;
+  $("clock").textContent = `${(S.t / 1000).toFixed(1)}s`;
+  $("mode").textContent = S.mode;
+  $("backendPill").textContent = S.backend === "gpu" ? "GPU" : "SIMULATED H100";
+  $("backendPill").className = `pill ${S.backend === "gpu" ? "gpu" : "sim"}`;
+  $("navNodes").textContent = S.order.length;
+
+  const prog = best && S.target && S.baseline ? (best - S.baseline) / (S.target - S.baseline) : 0;
+  $("qTarget").textContent = `${Math.min(100, Math.max(0, prog * 100)).toFixed(0)}%`; setBar("bTarget", prog);
+  const pr = S.decisions ? S.pruned / S.decisions : 0;
+  $("qPruned").textContent = `${(pr * 100).toFixed(0)}%`; setBar("bPruned", pr);
+  if (S.noKev && S.mode !== "offline") {
+    const avoided = S.noKev.compiles ? Math.max(0, S.noKev.compiles - S.work.compiles) / S.noKev.compiles : 0;
+    $("qComp").textContent = S.summary ? `${S.noKev.compiles - S.work.compiles} of ${S.noKev.compiles}` : `${S.work.compiles} so far`;
+    setBar("bComp", S.summary ? avoided : 0);
+  } else { $("qComp").textContent = S.mode === "offline" ? "n/a" : "-"; setBar("bComp", 0); }
+  const st = S.stats;
+  if (st) {
+    const saved = st.gpuSecondsSavedEarlyExit + st.gpuSecondsSavedByPruningEstimate;
+    const share = saved / (saved + st.gpuSecondsSpent || 1);
+    $("qGpu").textContent = `${(share * 100).toFixed(0)}%`; setBar("bGpu", share);
+  }
+  $("qShifts").textContent = S.shifts.length; setBar("bShifts", S.shifts.length / 4);
+}
+
+function renderAlerts() {
+  const sa = $("shiftAlert"), last = S.shifts[S.shifts.length - 1];
+  if (last && performance.now() - S.lastShiftAt < 3500 && !S.summary) {
+    sa.style.display = "flex";
+    $("shiftT1").textContent = `Paradigm shift triggered: ${last.label}`;
+    $("shiftT2").textContent = `Plateau at ${f1(last.best)} TFLOPS for 3 cycles. ${last.decidedBy === "kev-27b" ? "Routed to kev-27b" : "kev-27b unavailable, fallback order"}; purged ${last.purged} stalled nodes.`;
+    const probs = Object.entries(last.probabilities).sort((a, b) => b[1] - a[1]);
+    $("shiftProbs").innerHTML = probs.map(([k, v]) => `<span class="${k === last.strategyId ? "win" : ""}">${esc(k)} ${(v * 100).toFixed(0)}%</span>`).join("");
+  } else sa.style.display = "none";
+
+  const da = $("doneAlert");
+  if (S.summary && S.champion) {
+    const err = S.nodes.get(S.champion.id)?.err;
+    da.style.display = "flex";
+    $("doneT1").textContent = S.backend === "gpu"
+      ? `Verified on GPU: max abs error ${err?.toExponential(2)} vs PyTorch reference`
+      : `${err === 0 ? "0.000% numerical error" : `max abs error ${err}`} vs reference (simulated H100 model)`;
+    $("doneT2").textContent = `${S.champion.score.toFixed(1)} TFLOPS, ${(S.champion.score / S.baseline).toFixed(2)}x baseline in ${S.summary.cycles} cycles. Final kernel: ${S.summary.championSummary}`;
+    $("doneSaved").style.display = S.mode === "offline" ? "none" : "";
+  } else da.style.display = "none";
+}
+
+let pending = false;
+function schedule() { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; renderKpis(); renderChart(); renderDag(); renderAlerts(); renderActivity(); renderTop(); renderKev(); }); }
+setInterval(() => { renderAlerts(); renderKpis(); renderActivity(); }, 500);
+
+// ---------------------------------------------------------------------------
+// Stream and controls
+// ---------------------------------------------------------------------------
+
+const es = new EventSource("/events");
+es.onmessage = (m) => {
+  const ev = JSON.parse(m.data);
+  if (ev.t !== undefined) S.t = ev.t;
+  if (ev.kind === "run") {
+    reset(); S.mode = ev.mode; S.t = 0; S.problem = ev.problem; S.hardware = ev.hardware;
+    const p = ev.problem;
+    $("task").textContent = `Triton flash-attention forward · B${p.batch} H${p.heads} N${p.seqLen} D${p.headDim} ${p.dtype} · ${ev.hardware}`;
+    for (const id of ["activityList", "topList", "kevList"]) $(id).innerHTML = `<div class="empty">Waiting for events</div>`;
+    closeSaved();
+  } else if (ev.kind === "baseline") S.noKev = ev.work;
+  else if (ev.kind === "evolve") onEvolve(ev.e);
+  else if (ev.kind === "graph") onGraph(ev.e);
+  else if (ev.kind === "error") act("fail", "Error", ev.message);
+  if (ev.kind === "evolve" && ev.e.type === "finished" && S.mode !== "offline") $("savedDot").style.display = "block";
+  setButtons(!S.summary && S.mode !== "idle" && ev.kind !== "error");
+  schedule();
+};
+
+function setButtons(running) { for (const b of document.querySelectorAll("button[data-mode]")) b.disabled = running; }
+for (const b of document.querySelectorAll("button[data-mode]")) {
+  b.addEventListener("click", async () => {
+    const pace = new URLSearchParams(location.search).get("pace") ?? "100";
+    const res = await fetch(`/run?mode=${b.dataset.mode}&pace=${pace}`, { method: "POST" });
+    if (!res.ok) { act("fail", "Could not start run", (await res.json()).error); schedule(); }
+  });
+}
+for (const a of document.querySelectorAll(".nav a")) a.addEventListener("click", () => { for (const o of document.querySelectorAll(".nav a")) o.classList.toggle("active", o === a); });
+schedule();
+</script>
+</body>
+</html>

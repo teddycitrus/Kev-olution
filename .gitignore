@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Secrets (keep the example template)
+.env
+.env.*
+!.env.example
+
+# Kev runtime state: logs, quota counter, live caches.
+# The recorded demo cache is committed so `bun run demo` replays without network or keys.
+.kev/*
+!.kev/demo-cache.json
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Local Claude Code / agent state
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
+# Scratch and build output
+*.tmp.*
+*.log
+dist/
+build/
+coverage/
+
+# OS and editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

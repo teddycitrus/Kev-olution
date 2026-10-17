@@ -1,0 +1,21 @@
+{
+  "name": "triton_flash_attention",
+  "description": "Forward flash attention kernel in Triton. Performance is produced by a simulated H100 model, not real hardware.",
+  "problem": {
+    "batch": 4,
+    "heads": 32,
+    "seqLen": 4096,
+    "headDim": 128,
+    "dtype": "float16",
+    "causal": false
+  },
+  "hardware": {
+    "name": "H100-SXM (simulated)",
+    "sharedMemBytes": 232448
+  },
+  "baselineTflops": 41.2,
+  "targetTflops": 140,
+  "errorTolerance": 0,
+  "baseline": "baseline.py",
+  "reference": "reference.py"
+}
