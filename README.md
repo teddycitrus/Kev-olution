@@ -18,12 +18,12 @@
   <p align="center">
     Hypothesis triage and stagnation-triggered exploration for agentic research loops
     <br />
-    <a href="https://github.com/teddycitrus/kev-olution"><strong>Explore the docs &raquo;</strong></a>
+    <a href="https://github.com/teddycitrus/Kev-olution"><strong>Explore the docs &raquo;</strong></a>
     <br />
     <br />
-    <a href="https://github.com/teddycitrus/kev-olution/issues/new?labels=bug">Report Bug</a>
+    <a href="https://github.com/teddycitrus/Kev-olution/issues/new?labels=bug">Report Bug</a>
     &middot;
-    <a href="https://github.com/teddycitrus/kev-olution/issues/new?labels=enhancement">Request Feature</a>
+    <a href="https://github.com/teddycitrus/Kev-olution/issues/new?labels=enhancement">Request Feature</a>
   </p>
 </div>
 
@@ -164,8 +164,8 @@ Kev cut evaluations by about 40% for the same final result. The example's evalua
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/teddycitrus/kev-olution.git
-   cd kev-olution
+   git clone https://github.com/teddycitrus/Kev-olution.git
+   cd Kev-olution
    ```
 
 2. Install dependencies
@@ -313,7 +313,7 @@ tests/         bun test suites
 - [ ] LLM hypothesis generator wired to a frontier model for open-ended proposals
 - [ ] Container sandbox for tasks that execute untrusted code
 
-See the [open issues](https://github.com/teddycitrus/kev-olution/issues) for a full list of proposed features and known issues.
+See the [open issues](https://github.com/teddycitrus/Kev-olution/issues) for a full list of proposed features and known issues.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -342,21 +342,21 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Project Link: [https://github.com/teddycitrus/kev-olution](https://github.com/teddycitrus/kev-olution)
+Project Link: [https://github.com/teddycitrus/Kev-olution](https://github.com/teddycitrus/Kev-olution)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & BADGES -->
-[contributors-shield]: https://img.shields.io/github/contributors/teddycitrus/kev-olution.svg?style=for-the-badge&cacheSeconds=60
-[contributors-url]: https://github.com/teddycitrus/kev-olution/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/teddycitrus/kev-olution.svg?style=for-the-badge&cacheSeconds=60
-[forks-url]: https://github.com/teddycitrus/kev-olution/network/members
-[stars-shield]: https://img.shields.io/github/stars/teddycitrus/kev-olution.svg?style=for-the-badge&cacheSeconds=60
-[stars-url]: https://github.com/teddycitrus/kev-olution/stargazers
-[issues-shield]: https://img.shields.io/github/issues/teddycitrus/kev-olution.svg?style=for-the-badge&cacheSeconds=60
-[issues-url]: https://github.com/teddycitrus/kev-olution/issues
-[license-shield]: https://img.shields.io/github/license/teddycitrus/kev-olution.svg?style=for-the-badge&cacheSeconds=60
-[license-url]: https://github.com/teddycitrus/kev-olution/blob/main/LICENSE
+[contributors-shield]: https://img.shields.io/github/contributors/teddycitrus/Kev-olution.svg?style=for-the-badge&cacheSeconds=60
+[contributors-url]: https://github.com/teddycitrus/Kev-olution/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/teddycitrus/Kev-olution.svg?style=for-the-badge&cacheSeconds=60
+[forks-url]: https://github.com/teddycitrus/Kev-olution/network/members
+[stars-shield]: https://img.shields.io/github/stars/teddycitrus/Kev-olution.svg?style=for-the-badge&cacheSeconds=60
+[stars-url]: https://github.com/teddycitrus/Kev-olution/stargazers
+[issues-shield]: https://img.shields.io/github/issues/teddycitrus/Kev-olution.svg?style=for-the-badge&cacheSeconds=60
+[issues-url]: https://github.com/teddycitrus/Kev-olution/issues
+[license-shield]: https://img.shields.io/github/license/teddycitrus/Kev-olution.svg?style=for-the-badge&cacheSeconds=60
+[license-url]: https://github.com/teddycitrus/Kev-olution/blob/main/LICENSE
 
 [TypeScript-badge]: https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white
 [TypeScript-url]: https://www.typescriptlang.org/
