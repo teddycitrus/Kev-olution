@@ -347,15 +347,15 @@ Project Link: [https://github.com/teddycitrus/Kev-olution](https://github.com/te
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & BADGES -->
-[contributors-shield]: https://badgen.net/github/contributors/teddycitrus/Kev-olution
+[contributors-shield]: https://img.shields.io/github/contributors/teddycitrus/Kev-olution.svg?style=for-the-badge&cacheSeconds=60
 [contributors-url]: https://github.com/teddycitrus/Kev-olution/graphs/contributors
-[forks-shield]: https://badgen.net/github/forks/teddycitrus/Kev-olution
+[forks-shield]: https://img.shields.io/github/forks/teddycitrus/Kev-olution.svg?style=for-the-badge&cacheSeconds=60
 [forks-url]: https://github.com/teddycitrus/Kev-olution/network/members
-[stars-shield]: https://badgen.net/github/stars/teddycitrus/Kev-olution
+[stars-shield]: https://img.shields.io/github/stars/teddycitrus/Kev-olution.svg?style=for-the-badge&cacheSeconds=60
 [stars-url]: https://github.com/teddycitrus/Kev-olution/stargazers
-[issues-shield]: https://badgen.net/github/open-issues/teddycitrus/Kev-olution?label=issues
+[issues-shield]: https://img.shields.io/github/issues/teddycitrus/Kev-olution.svg?style=for-the-badge&cacheSeconds=60
 [issues-url]: https://github.com/teddycitrus/Kev-olution/issues
-[license-shield]: https://badgen.net/github/license/teddycitrus/Kev-olution
+[license-shield]: https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge
 [license-url]: https://github.com/teddycitrus/Kev-olution/blob/main/LICENSE
 
 [TypeScript-badge]: https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white
